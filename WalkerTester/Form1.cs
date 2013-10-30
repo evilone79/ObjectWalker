@@ -19,9 +19,13 @@ namespace WalkerTester
 
         private void button1_Click(object sender, EventArgs e)
         {
+
             var obj = CreateObject();
             Dumper.WalkObject(obj,new TreeViewWalker(treeView1));
             treeView1.ExpandAll();
+            var sb = new StringBuilder();
+            Dumper.WalkObject(button1, new StringBuilderWalker(sb));
+            richTextBox1.Text = sb.ToString();
         }
 
         Configuration CreateObject()
@@ -36,6 +40,40 @@ namespace WalkerTester
             obj.Listing = new List<string>() { "asdfasdf", "dfgsdfgh" };
             obj.ExitValueLocation = "fasdfasdfgasdfgsdfgs";
             return obj;
+        }
+    }
+
+    public class StringBuilderWalker : IObjectWalker
+    {
+        private StringBuilder m_sb;
+        private int m_depth = 0;
+        public StringBuilderWalker(StringBuilder sb)
+        {
+            m_sb = sb;
+        }
+
+        public void WalkDown(string text)
+        {
+            m_depth++;
+            if (!string.IsNullOrEmpty(text))
+            {
+                m_sb.AppendLine(GetTabs() + text);
+            }
+        }
+
+        public void WalkLevel(string text)
+        {
+            m_sb.AppendLine(GetTabs() + text);
+        }
+
+        public void WalkUp()
+        {
+            m_depth--;
+        }
+
+        string GetTabs()
+        {
+            return new string(' ', m_depth*6);
         }
     }
 
