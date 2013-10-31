@@ -21,10 +21,10 @@ namespace WalkerTester
         {
 
             var obj = CreateObject();
-            Dumper.WalkObject(obj,new TreeViewWalker(treeView1), 1);
+            Dumper.WalkObject(obj,new TreeViewWalker(treeView1));
             treeView1.ExpandAll();
             var sb = new StringBuilder();
-            Dumper.WalkObject(obj, new StringBuilderWalker(sb),1);
+            Dumper.WalkObject(button1, new StringBuilderWalker(sb));
             richTextBox1.Text = sb.ToString();
         }
 
