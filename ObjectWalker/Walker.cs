@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace ObjectWalker
 {
@@ -86,11 +87,10 @@ namespace ObjectWalker
                         walker.WalkUp();
                     }
                 };
-
             parse(objectWalker, obj, null);
         }
 
-        public static void FillObject(object obj)
+        public static void FillObject(object obj, int collectionItemsCount)
         {
             Action<object> fillObject = null;
             fillObject = o =>
@@ -105,19 +105,22 @@ namespace ObjectWalker
                         {
                             Type itemType = t.GetElementType();
                             Array arr = Array.CreateInstance(itemType, 3);
-                            for (int i = 0; i < 3; i++)
+                            for (int i = 0; i < collectionItemsCount; i++)
                             {
                                 if (itemType.IsClass)
                                 {
                                     if (itemType == typeof(string))
                                     {
-                                        arr.SetValue(("ArrayValue_" + i),i);
+                                        arr.SetValue(("array_item_" + i),i);
                                     }
                                     else
                                     {
-                                        object val = Activator.CreateInstance(itemType);
-                                        fillObject(val);
-                                        arr.SetValue(val, i);
+                                        if (itemType != o.GetType())
+                                        {
+                                            object val = Activator.CreateInstance(itemType);
+                                            fillObject(val);
+                                            arr.SetValue(val, i); 
+                                        }
                                     }
                                 }
                             }
@@ -128,19 +131,22 @@ namespace ObjectWalker
                             Type itemType = t.GetGenericArguments()[0];
                             var constructedListType = typeof(List<>).MakeGenericType(itemType);
                             var list = (IList)Activator.CreateInstance(constructedListType);
-                            for (int i = 0; i < 3; i++)
+                            for (int i = 0; i < collectionItemsCount; i++)
                             {
                                 if (itemType.IsClass)
                                 {
                                     if (itemType == typeof(string))
                                     {
-                                        list.Add("ListValue_" + i);
+                                        list.Add("list_item_" + i);
                                     }
                                     else
                                     {
-                                        object val = Activator.CreateInstance(itemType);
-                                        fillObject(val);
-                                        list.Add(val);
+                                        if (itemType != o.GetType())
+                                        {
+                                            object val = Activator.CreateInstance(itemType);
+                                            fillObject(val);
+                                            list.Add(val); 
+                                        }
                                     }
                                 }
                             }
@@ -154,7 +160,7 @@ namespace ObjectWalker
                         Type valType = t.GetGenericArguments()[1];
                         var constructedDict = typeof (Dictionary<,>).MakeGenericType(keyType, valType);
                         var dict = (IDictionary) Activator.CreateInstance(constructedDict);
-                        for (int i = 0; i < 3; i++)
+                        for (int i = 0; i < collectionItemsCount; i++)
                         {
                             object key;
                             object value = null;
@@ -172,12 +178,15 @@ namespace ObjectWalker
                             {
                                 if (valType == typeof(string))
                                 {
-                                    value = ("ListValue_" + i);
+                                    value = ("value_" + i);
                                 }
                                 else
                                 {
-                                    value = Activator.CreateInstance(valType);
-                                    fillObject(value);
+                                    if (valType != o.GetType())
+                                    {
+                                        value = Activator.CreateInstance(valType);
+                                        fillObject(value); 
+                                    }
                                 }
                             }
                             dict.Add(key, value);
@@ -201,7 +210,20 @@ namespace ObjectWalker
                     {
                         if (t == typeof(string))
                         {
-                            prop.SetValue(o, "TestValue_" + new Random().Next(20), null);
+                            var sb = new StringBuilder();
+                            char[] chars = prop.Name.ToCharArray();
+                            sb.Append(chars[0]);
+                            for (int i = 1; i < chars.Length; i++)
+                            {
+                                char c = chars[i];
+                                if (Char.IsUpper(c))
+                                {
+                                    sb.Append('_');
+                                }
+                                sb.Append(c);
+                            }
+                            sb.Append('_');
+                            prop.SetValue(o, sb.ToString() + new Random().Next(20), null);
                         }
                         else
                         {
