@@ -8,11 +8,10 @@ namespace ObjectWalker
     {
         public static void WalkObject(object obj, IObjectWalker objectWalker)
         {
-            Action<IObjectWalker, object, string, bool> parse = null;
+            Action<IObjectWalker, object, string> parse = null;
             objectWalker.WalkLevel(obj.GetType().Name);
-            parse = (walker, o, txt, firstTime) =>
+            parse = (walker, o, txt) =>
                 {
-                    if (!firstTime) walker.WalkDown(txt);
                     PropertyInfo[] propreties = o.GetType().GetProperties();
                     foreach (PropertyInfo property in propreties)
                     {
@@ -21,6 +20,7 @@ namespace ObjectWalker
                         if (val == null)
                         {
                             walker.WalkLevel(string.Format("{0} = null", property.Name));
+                            walker.WalkUp();
                             continue;
                         }
                         var enu = val as IEnumerable;
@@ -32,7 +32,9 @@ namespace ObjectWalker
                                 Type et = o2.GetType();
                                 if (!et.IsPrimitive && !et.IsValueType && et != typeof(string))
                                 {
-                                    parse(walker, o2, et.Name, false);
+                                    walker.WalkDown(et.Name);
+                                    parse(walker, o2, et.Name);
+                                    walker.WalkUp();
                                 }
                                 else
                                 {
@@ -53,7 +55,9 @@ namespace ObjectWalker
                                 Type dt = dValue.GetType();
                                 if (!dt.IsPrimitive && !dt.IsValueType && dt != typeof(string))
                                 {
-                                    parse(walker, dValue, dt.Name, false);
+                                    walker.WalkDown(dt.Name);
+                                    parse(walker, dValue, dt.Name);
+                                    walker.WalkUp();
                                 }
                                 else
                                 {
@@ -67,8 +71,8 @@ namespace ObjectWalker
                         Type t = property.PropertyType;
                         if (!t.IsPrimitive && !t.IsValueType && t != typeof(string))
                         {
-                            //walker.WalkDown(string.Format("{0}", property.Name));
-                            parse(walker, val, string.Format("{0}", property.Name), false);
+                            walker.WalkLevel(string.Format("{0}", property.Name));
+                            parse(walker, val, null);
                         }
                         else
                         {
@@ -78,10 +82,9 @@ namespace ObjectWalker
                         }
                         walker.WalkUp();
                     }
-                    if (!firstTime) walker.WalkUp();
                 };
 
-            parse(objectWalker, obj, null, true);
+            parse(objectWalker, obj, null);
         }
 
 
