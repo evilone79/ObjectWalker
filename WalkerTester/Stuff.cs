@@ -1,19 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace WalkerTester
 {
+    public enum SomeeNum
+    {
+        EnumValue1,
+        EnumValue2
+    }
+    public class NoCtor
+    {
+
+        private string m_str;
+        private DateTime m_dt;
+        private SomeeNum m_enu;
+
+        public NoCtor(string str, DateTime dt, SomeeNum enu)
+        {
+            m_str = str;
+            m_dt = dt;
+            m_enu = enu;
+        }
+
+        public string Str
+        {
+            get { return m_str; }
+            set { m_str = value; }
+        }
+
+        public DateTime Dt
+        {
+            get { return m_dt; }
+            set { m_dt = value; }
+        }
+
+        public SomeeNum Enu
+        {
+            get { return m_enu; }
+            set { m_enu = value; }
+        }
+    }
     public class Entity
     {
         public Entity()
         {
             Dict = new Dictionary<int, string>();
         }
-        public string AnotherStuff { get; set; }
-        public DateTime Date { get; set; }
-        public bool Result { get; set; }
+
+        public byte[] StreamB { get; set; }
+        public Stream StreamS { get; set; }
+        public Guid SomeGuid { get; set; }
+        public SomeeNum Num { get; set; }
+        public MemoryStream MemoryStreamM { get; set; }
         public Dictionary<int, string> Dict { get; set; }
-        public Dictionary<int, List<string>> DictComplex { get; set; }
+        public NoCtor NoCtor { get; set; }
     }
     public class Configuration
     {
@@ -28,6 +69,8 @@ namespace WalkerTester
             get { return _url; }
             set
             {
+                //MemoryStream m = new MemoryStream();
+                //m.ReadTimeout = 4;
                 _url = value;
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -11,18 +12,24 @@ namespace ObjectWalker
 {
     public class Walker
     {
+        static List<string> m_excludedAssemblies=new List<string>
+            {
+                "mscorlib",
+                "System",
+                "Microsoft"
+            };
         public static void WalkObject(object obj, IObjectWalker objectWalker)
         {
             Action<IObjectWalker, object, string> parse = null;
             objectWalker.WalkLevel(obj.GetType().Name);
             parse = (walker, o, txt) =>
                 {
-                    PropertyInfo[] propreties = o.GetType().GetProperties();
-                    foreach (PropertyInfo property in propreties)
+                    var properties = o.GetType().GetProperties().Where(p=>p.CanRead);
+                    foreach (PropertyInfo property in properties)
                     {
                         walker.WalkDown(null);
                         object val = property.GetValue(o, null);
-                        string ifprimitive = o is string
+                        string ifprimitive = property.PropertyType == typeof(string)
                                                  ? string.Format("{0} = \"{1}\"", property.Name, val)
                                                  : string.Format("{0} = {1}", property.Name, val);
                         ParseObject(val, property.Name, parse, walker, ifprimitive);
@@ -85,7 +92,7 @@ namespace ObjectWalker
             Action<object> fillObject = null;
             fillObject = o =>
             {
-                var props = o.GetType().GetProperties();
+                var props = o.GetType().GetProperties().Where(p=>p.CanWrite);
                 foreach (var prop in props)
                 {
                     Type t = prop.PropertyType;
@@ -109,7 +116,14 @@ namespace ObjectWalker
                     string s = sb.Append('_').Append(new Random().Next(20)).ToString().ToLower();
                         
                     object propVal = CreateObject(t, s, fillObject, collectionItemsCount);
-                    prop.SetValue(o, propVal, null);
+                    try
+                    {
+                        prop.SetValue(o, propVal, null);
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex);
+                    }
                 }
             };
             fillObject(obj);
@@ -124,6 +138,10 @@ namespace ObjectWalker
                     return true;
                 }
                 return new Random().Next(20);
+            }
+            if (t.IsEnum)
+            {
+                return t.GetEnumValues().GetValue(0);
             }
             if (t.IsValueType)
             {
@@ -168,7 +186,7 @@ namespace ObjectWalker
                         for (int i = 0; i < collCnt; i++)
                         {
                             var arrItem = CreateObject(itemType, "array_item_" + i, fill, collCnt);
-                            arr.SetValue(arrItem, i);
+                            arr.SetValue(Convert.ChangeType(arrItem, itemType), i);
                         }
                         return arr;
                     }
@@ -194,8 +212,27 @@ namespace ObjectWalker
                     }
                 }
                 //else treat as non collection object
-                object val = Activator.CreateInstance(t);
-                fill(val);
+                object val = null;
+                if (!t.Assembly.FullName.Split(',','.').Intersect(m_excludedAssemblies).Any())
+                {
+                    if (t.GetConstructors().Count(c => c.GetParameters().Length == 0) > 0)
+                    {
+                        val = Activator.CreateInstance(t);
+                        fill(val);
+                    }
+                    else
+                    {
+                        var constructors = t.GetConstructors();
+                        if (constructors.Length > 0)
+                        {
+                            var parameters = constructors[0].GetParameters();
+                            var objects =
+                                parameters.Select(pi => CreateObject(pi.ParameterType, "from_constructor", fill, collCnt)).ToArray();
+                            val = Activator.CreateInstance(t, objects);
+                            fill(val);
+                        }
+                    }
+                }
                 return val;
             }
             return null;
