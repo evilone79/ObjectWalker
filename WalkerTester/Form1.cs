@@ -19,12 +19,13 @@ namespace WalkerTester
 
         private void button1_Click(object sender, EventArgs e)
         {
-
-            var obj = CreateObject();
-            Dumper.WalkObject(obj,new TreeViewWalker(treeView1));
-            treeView1.ExpandAll();
+            Configuration c = new Configuration();
+            //var obj = CreateObject();
+            Walker.FillObject(c,2);
+            //Walker.WalkObject(c,new TreeViewWalker(treeView1));
+            //treeView1.ExpandAll();
             var sb = new StringBuilder();
-            Dumper.WalkObject(button1, new StringBuilderWalker(sb));
+            Walker.WalkObject(c, new StringBuilderWalker(sb));
             richTextBox1.Text = sb.ToString();
         }
 
@@ -33,7 +34,8 @@ namespace WalkerTester
             Configuration obj = new Configuration();
             var ent1 = new Entity { AnotherStuff = "gbsdfghsdf", Date = DateTime.Now, Result = false };
             ent1.Dict.Add(1, "zxdfsdg");
-            ent1.DictEnt.Add(2, new Entity { AnotherStuff = "sss", Date = DateTime.Now, Result = false });
+            obj.DictEnt.Add(2, new Entity { AnotherStuff = "sss", Date = DateTime.Now, Result = false });
+            obj.TheEntity = ent1;
             var ent2 = new Entity { AnotherStuff = "fghdfgjh", Date = DateTime.Now, Result = true };
             ent2.Dict.Add(34, "46785678tyui");
             obj.DefaultInstallerParams = new List<Entity>() { ent1, ent2 };

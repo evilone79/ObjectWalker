@@ -8,21 +8,28 @@ namespace WalkerTester
         public Entity()
         {
             Dict = new Dictionary<int, string>();
-            DictEnt = new Dictionary<int, Entity>();
         }
         public string AnotherStuff { get; set; }
         public DateTime Date { get; set; }
         public bool Result { get; set; }
         public Dictionary<int, string> Dict { get; set; }
-        public Dictionary<int, Entity> DictEnt { get; set; }
+        public Dictionary<int, List<string>> DictComplex { get; set; }
     }
     public class Configuration
     {
+        public LinkedList<string> LS { get; set; } 
+        public HashSet<Entity> HS { get; set; } 
+        public Dictionary<int, Entity> DictEnt { get; set; }
+        public Entity TheEntity { get; set; }
+
         protected string _url = string.Empty;
         public string Url
         {
             get { return _url; }
-            set { _url = value; }
+            set
+            {
+                _url = value;
+            }
         }
         protected string _fileHash = string.Empty;
         public string FileHash
