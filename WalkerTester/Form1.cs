@@ -22,11 +22,12 @@ namespace WalkerTester
         {
             Configuration c = new Configuration();
             //Button c=new Button();
-            Walker.FillObject(c,2);
+            ObjectUtils.FillObject(c,2);
             var sb = new StringBuilder();
-            Walker.WalkObject(label1, new StringBuilderWalker(sb));
-            Walker.WalkObject(c, new TreeViewWalker(treeView1));
+            ObjectUtils.WalkObject(label1, new StringBuilderWalker(sb), 3);
+            ObjectUtils.WalkObject(c, new TreeViewWalker(treeView1));
             richTextBox1.Text = sb.ToString();
+            treeView1.ExpandAll();
         }
        
     }

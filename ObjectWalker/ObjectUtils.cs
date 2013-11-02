@@ -10,36 +10,46 @@ using System.Text;
 
 namespace ObjectWalker
 {
-    public class Walker
+    public class ObjectUtils
     {
-        static List<string> m_excludedAssemblies=new List<string>
+        static readonly List<string> m_fillExcludedAssemblies=new List<string>
             {
                 "mscorlib",
                 "System",
                 "Microsoft"
             };
+
         public static void WalkObject(object obj, IObjectWalker objectWalker)
         {
-            Action<IObjectWalker, object, string> parse = null;
-            objectWalker.WalkLevel(obj.GetType().Name);
-            parse = (walker, o, txt) =>
-                {
-                    var properties = o.GetType().GetProperties().Where(p=>p.CanRead);
-                    foreach (PropertyInfo property in properties)
-                    {
-                        walker.WalkDown(null);
-                        object val = property.GetValue(o, null);
-                        string ifprimitive = property.PropertyType == typeof(string)
-                                                 ? string.Format("{0} = \"{1}\"", property.Name, val)
-                                                 : string.Format("{0} = {1}", property.Name, val);
-                        ParseObject(val, property.Name, parse, walker, ifprimitive);
-                        walker.WalkUp();
-                    }
-                };
-            parse(objectWalker, obj, null);
+            WalkObject(obj, objectWalker, Int32.MaxValue);
         }
 
-        static void ParseObject(object o, string name, Action<IObjectWalker, object, string> parse, IObjectWalker walker, string ifPrimitive)
+        public static void WalkObject(object obj, IObjectWalker objectWalker, int depth)
+        {
+            Action<IObjectWalker, object, string, int> parse = null;
+            objectWalker.WalkLevel(obj.GetType().Name);
+            parse = (walker, o, txt, dep) =>
+                {
+                    if (dep > 0)
+                    {
+                        dep--;
+                        var properties = o.GetType().GetProperties().Where(p => p.CanRead);
+                        foreach (PropertyInfo property in properties)
+                        {
+                            walker.WalkDown(null);
+                            object val = property.GetValue(o, null);
+                            string ifprimitive = property.PropertyType == typeof(string)
+                                                     ? string.Format("{0} = \"{1}\"", property.Name, val)
+                                                     : string.Format("{0} = {1}", property.Name, val);
+                            ParseObject(val, property.Name, parse, walker, ifprimitive, dep);
+                            walker.WalkUp();
+                        }
+                    }
+                };
+            parse(objectWalker, obj, null, depth);
+        }
+
+        static void ParseObject(object o, string name, Action<IObjectWalker, object, string, int> parse, IObjectWalker walker, string ifPrimitive, int depth)
         {
             if (o == null)
             {
@@ -54,7 +64,7 @@ namespace ObjectWalker
                 {
                     Type et = o2.GetType();
                     walker.WalkDown(null);
-                    ParseObject(o2, et.Name, parse, walker, string.Concat("[", o2.ToString(), "]"));
+                    ParseObject(o2, et.Name, parse, walker, string.Concat("[", o2.ToString(), "]"),depth);
                     walker.WalkUp();
                 }
                 return;
@@ -68,7 +78,7 @@ namespace ObjectWalker
                     var dValue = dict[key];
                     Type dt = dValue.GetType();
                     walker.WalkDown(null);
-                    ParseObject(dValue, dt.Name, parse, walker, string.Concat("{", key, " : ", dValue.ToString(), "}"));
+                    ParseObject(dValue, dt.Name, parse, walker, string.Concat("{", key, " : ", dValue.ToString(), "}"),depth);
                     walker.WalkUp();
                 }
                 return;
@@ -77,7 +87,7 @@ namespace ObjectWalker
             if (!t.IsPrimitive && !t.IsValueType && t != typeof(string))
             {
                 walker.WalkLevel(name);
-                parse(walker, o, null);
+                parse(walker, o, null,depth);
             }
             else
             {
@@ -213,7 +223,7 @@ namespace ObjectWalker
                 }
                 //else treat as non collection object
                 object val = null;
-                if (!t.Assembly.FullName.Split(',','.').Intersect(m_excludedAssemblies).Any())
+                if (!t.Assembly.FullName.Split(',','.').Intersect(m_fillExcludedAssemblies).Any())
                 {
                     if (t.GetConstructors().Count(c => c.GetParameters().Length == 0) > 0)
                     {
