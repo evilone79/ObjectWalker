@@ -192,7 +192,7 @@ namespace ObjectWalker
                     if (t.IsArray)
                     {
                         Type itemType = t.GetElementType();
-                        Array arr = Array.CreateInstance(itemType, 3);
+                        Array arr = Array.CreateInstance(itemType, collCnt);
                         for (int i = 0; i < collCnt; i++)
                         {
                             var arrItem = CreateObject(itemType, "array_item_" + i, fill, collCnt);
