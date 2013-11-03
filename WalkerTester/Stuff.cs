@@ -4,18 +4,20 @@ using System.IO;
 
 namespace WalkerTester
 {
+    
     public enum SomeeNum
     {
         EnumValue1,
         EnumValue2
     }
+    
     public class NoCtor
     {
 
         private string m_str;
         private DateTime m_dt;
         private SomeeNum m_enu;
-
+        
         public NoCtor(string str, DateTime dt, SomeeNum enu)
         {
             m_str = str;
@@ -41,6 +43,7 @@ namespace WalkerTester
             set { m_enu = value; }
         }
     }
+    
     public class Entity
     {
         public Entity()
@@ -49,17 +52,18 @@ namespace WalkerTester
         }
 
         public byte[] StreamB { get; set; }
-        public Stream StreamS { get; set; }
+        //public Stream StreamS { get; set; }
         public Guid SomeGuid { get; set; }
         public SomeeNum Num { get; set; }
-        public MemoryStream MemoryStreamM { get; set; }
+        //public MemoryStream MemoryStreamM { get; set; }
         public Dictionary<int, string> Dict { get; set; }
         public NoCtor NoCtor { get; set; }
     }
+   
     public class Configuration
     {
-        public LinkedList<string> LS { get; set; } 
-        public HashSet<Entity> HS { get; set; } 
+        //public LinkedList<string> LS { get; set; } 
+        //public HashSet<Entity> HS { get; set; } 
         public Dictionary<int, Entity> DictEnt { get; set; }
         public Entity TheEntity { get; set; }
 

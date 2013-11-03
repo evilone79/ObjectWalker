@@ -35,36 +35,51 @@ namespace ObjectWalker
         public StringBuilder GetBuilder()
         {
             var sb = new StringBuilder();
-            m_curLeaf.DrawTree(sb);
+            m_curLeaf.DrawTree(sb, new List<string>(),true);
             return sb;
         }
 
         class Leaf
         {
-            private const string m_emptyToken = "      ";
-            private const string m_branchToken = "  |   ";
-            private const string m_leafToken = "  |--";
+            private const string EMPTY_TOKEN = "      ";
+            private const string BRANCH_TOKEN = "    |   ";
+            private const string LEAF_TOKEN = "    |__";
 
             public Leaf(string text)
             {
                 Text = text;
                 Leafs = new List<Leaf>();
             }
-
-           
             List<Leaf> Leafs { get; set; }
-
             public string Text { get; set; }
-
-            public bool Terminated { get; set; }
-
             public void AddLeaf(Leaf l)
             {
                 Leafs.Add(l);
             }
-            public void DrawTree(StringBuilder builder)
+            public void DrawTree(StringBuilder builder, List<string> prefix, bool isLast)
             {
-                
+                builder.Append(string.Concat(prefix)).Append(LEAF_TOKEN).AppendLine(Text);
+                int cnt = Leafs.Count;
+                if (isLast)
+                {
+                    prefix.Add(EMPTY_TOKEN);
+                }
+                else
+                {
+                    prefix.Add(BRANCH_TOKEN);
+                }
+                foreach (var leaf in Leafs)
+                {
+                    if (--cnt == 0)
+                    {
+                        leaf.DrawTree(builder, prefix,true);
+                    }
+                    else
+                    {
+                        leaf.DrawTree(builder, prefix, false);
+                    }
+                }
+                prefix.RemoveAt(prefix.Count - 1);
             }
         }
     }
