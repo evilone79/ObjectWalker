@@ -8,10 +8,16 @@ namespace ObjectWalker
     public class StringBuilderWalker : IObjectWalker
     {
         private Stack<Leaf> m_leafs = new Stack<Leaf>();
+        private StringBuilder m_builder;
         private Leaf m_curLeaf;
-        public StringBuilderWalker()
+        public StringBuilderWalker(StringBuilder builder)
         {
             m_curLeaf = new Leaf(string.Empty);
+            m_builder = builder;
+        }
+
+        public void OnStart()
+        {
         }
 
         public void WalkDown(string text)
@@ -32,11 +38,9 @@ namespace ObjectWalker
             m_curLeaf = m_leafs.Pop();
         }
 
-        public StringBuilder GetBuilder()
+        public void OnFinish()
         {
-            var sb = new StringBuilder();
-            m_curLeaf.DrawTree(sb, new List<string>(),true);
-            return sb;
+            m_curLeaf.DrawTree(m_builder, new List<string>(), true);
         }
 
         class Leaf

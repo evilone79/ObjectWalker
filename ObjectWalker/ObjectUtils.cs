@@ -27,6 +27,7 @@ namespace ObjectWalker
         public static void WalkObject(object obj, IObjectWalker objectWalker, int depth)
         {
             Action<IObjectWalker, object, string, int> parse = null;
+            objectWalker.OnStart();
             objectWalker.WalkLevel(obj.GetType().Name);
             parse = (walker, o, txt, dep) =>
                 {
@@ -47,6 +48,7 @@ namespace ObjectWalker
                     }
                 };
             parse(objectWalker, obj, null, depth);
+            objectWalker.OnFinish();
         }
 
         static void ParseObject(object o, string name, Action<IObjectWalker, object, string, int> parse, IObjectWalker walker, string ifPrimitive, int depth)

@@ -17,6 +17,10 @@ namespace ObjectWalker
             tv.Nodes.Add(m_curNode);
         }
 
+        public void OnStart()
+        {
+        }
+
         public void WalkDown(string text)
         {
             m_stack.Push(m_curNode);
@@ -33,6 +37,10 @@ namespace ObjectWalker
         public void WalkUp()
         {
             m_curNode = m_stack.Pop();
+        }
+
+        public void OnFinish()
+        {
         }
     }
 }

@@ -19,6 +19,11 @@ namespace ObjectWalker
             m_xml.Add(m_curNode);
         }
 
+        public void OnStart()
+        {
+            throw new NotImplementedException();
+        }
+
         public void WalkDown(string text)
         {
             m_stack.Push(m_curNode);
@@ -35,6 +40,11 @@ namespace ObjectWalker
         public void WalkUp()
         {
             m_curNode = m_stack.Pop();
+        }
+
+        public void OnFinish()
+        {
+            throw new NotImplementedException();
         }
     }
 }
