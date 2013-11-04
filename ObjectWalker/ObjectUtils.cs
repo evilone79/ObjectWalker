@@ -127,7 +127,7 @@ namespace ObjectWalker
                     }
                     string s = sb.Append('_').Append(new Random().Next(20)).ToString().ToLower();
                         
-                    object propVal = CreateObject(t, s, fillObject, collectionItemsCount);
+                    object propVal = CreateObject(t, o.GetType(), s, fillObject, collectionItemsCount);
                     try
                     {
                         prop.SetValue(o, propVal, null);
@@ -141,7 +141,7 @@ namespace ObjectWalker
             fillObject(obj);
         }
 
-        static object CreateObject(Type t, string forString, Action<object> fill, int collCnt)
+        static object CreateObject(Type t, Type parentType, string forString, Action<object> fill, int collCnt)
         {
             if (t.IsPrimitive)
             {
@@ -169,6 +169,10 @@ namespace ObjectWalker
                 {
                     Type keyType = t.GetGenericArguments()[0];
                     Type valType = t.GetGenericArguments()[1];
+                    if (valType == parentType)
+                    {
+                        return null;
+                    }
                     var constructedDict = t.GetGenericTypeDefinition().MakeGenericType(keyType, valType);
                     var dict = (IDictionary)Activator.CreateInstance(constructedDict);
                     for (int i = 0; i < collCnt; i++)
@@ -184,7 +188,7 @@ namespace ObjectWalker
                         }
                         else continue;
 
-                        object value = CreateObject(valType, "value_" + i, fill, collCnt);
+                        object value = CreateObject(valType, null, "value_" + i, fill, collCnt);
                         dict.Add(key, value);
                     }
                     return dict;
@@ -194,10 +198,14 @@ namespace ObjectWalker
                     if (t.IsArray)
                     {
                         Type itemType = t.GetElementType();
+                        if (itemType == parentType)
+                        {
+                            return null;
+                        }
                         Array arr = Array.CreateInstance(itemType, collCnt);
                         for (int i = 0; i < collCnt; i++)
                         {
-                            var arrItem = CreateObject(itemType, "array_item_" + i, fill, collCnt);
+                            var arrItem = CreateObject(itemType, null, "array_item_" + i, fill, collCnt);
                             arr.SetValue(Convert.ChangeType(arrItem, itemType), i);
                         }
                         return arr;
@@ -205,12 +213,16 @@ namespace ObjectWalker
                     else
                     {
                         Type itemType = t.GetGenericArguments()[0];
+                        if (itemType == parentType)
+                        {
+                            return null;
+                        }
                         Type genType = t.GetGenericTypeDefinition();
                         var genericCollType = genType.MakeGenericType(itemType);
                         var collection = Activator.CreateInstance(genericCollType);
                         for (int i = 0; i < collCnt; i++)
                         {
-                            var listItem = CreateObject(itemType, "list_item_" + i, fill, collCnt);
+                            var listItem = CreateObject(itemType, null, "list_item_" + i, fill, collCnt);
                             if (genType == typeof(LinkedList<>))
                             {
                                 t.GetMethod("AddLast", new[] { itemType }).Invoke(collection, new[] { listItem });
@@ -239,7 +251,7 @@ namespace ObjectWalker
                         {
                             var parameters = constructors[0].GetParameters();
                             var objects =
-                                parameters.Select(pi => CreateObject(pi.ParameterType, "from_constructor", fill, collCnt)).ToArray();
+                                parameters.Select(pi => CreateObject(pi.ParameterType, t,"from_constructor", fill, collCnt)).ToArray();
                             val = Activator.CreateInstance(t, objects);
                             fill(val);
                         }
