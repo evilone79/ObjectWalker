@@ -40,7 +40,7 @@ namespace ObjectWalker
                             walker.WalkDown(null);
                             object val = property.GetValue(o, null);
                             string ifprimitive = property.PropertyType == typeof(string)
-                                                     ? string.Format("{0} = \"{1}\"", property.Name, val)
+                                ? string.Format("{0} = \"{1}\"", property.Name, val==null?"":((string)val).Trim())
                                                      : string.Format("{0} = {1}", property.Name, val);
                             ParseObject(val, property.Name, parse, walker, ifprimitive, dep);
                             walker.WalkUp();
