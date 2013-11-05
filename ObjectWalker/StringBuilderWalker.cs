@@ -5,22 +5,22 @@ using System.Text;
 
 namespace ObjectWalker
 {
-    public class StringBuilderWalker : IObjectWalker
+    public class StringBuilderWalker : TextWalker
     {
         private Stack<Leaf> m_leafs = new Stack<Leaf>();
         private StringBuilder m_builder;
         private Leaf m_curLeaf;
-        public StringBuilderWalker(StringBuilder builder)
+
+        public StringBuilderWalker(StringBuilder builder) : base(new ToTextFormatter())
         {
             m_curLeaf = new Leaf(string.Empty);
             m_builder = builder;
         }
 
-        public void OnStart()
-        {
-        }
+        public override void OnStart()
+        {}
 
-        public void WalkDown(string text)
+        public override void WalkDown(string text)
         {
             m_leafs.Push(m_curLeaf);
             var newLeaf = new Leaf(text);
@@ -28,17 +28,17 @@ namespace ObjectWalker
             m_curLeaf = newLeaf;
         }
 
-        public void WalkLevel(string text)
+        public override void WalkLevel(string text)
         {
             m_curLeaf.Text = text;
         }
 
-        public void WalkUp()
+        public override void WalkUp()
         {
             m_curLeaf = m_leafs.Pop();
         }
 
-        public void OnFinish()
+        public override void OnFinish()
         {
             m_curLeaf.DrawTree(m_builder, new List<string>(), true);
         }

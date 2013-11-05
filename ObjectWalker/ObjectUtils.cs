@@ -26,10 +26,10 @@ namespace ObjectWalker
 
         public static void WalkObject(object obj, IObjectWalker objectWalker, int depth)
         {
-            Action<IObjectWalker, object, string, int> parse = null;
+            Action<IObjectWalker, object, int> parse = null;
             objectWalker.OnStart();
-            objectWalker.WalkLevel(obj.GetType().Name);
-            parse = (walker, o, txt, dep) =>
+            objectWalker.WalkLevel(obj.GetType().Name, null, ItemType.Name);
+            parse = (walker, o, dep) =>
                 {
                     if (dep > 0)
                     {
@@ -39,34 +39,31 @@ namespace ObjectWalker
                         {
                             walker.WalkDown(null);
                             object val = property.GetValue(o, null);
-                            string ifprimitive = property.PropertyType == typeof(string)
-                                ? string.Format("{0} = \"{1}\"", property.Name, val==null?"":((string)val).Trim())
-                                                     : string.Format("{0} = {1}", property.Name, val);
-                            ParseObject(val, property.Name, parse, walker, ifprimitive, dep);
+                            ParseObject(val, parse, walker, property.Name, dep, ItemType.NameValue);
                             walker.WalkUp();
                         }
                     }
                 };
-            parse(objectWalker, obj, null, depth);
+            parse(objectWalker, obj, depth);
             objectWalker.OnFinish();
         }
 
-        static void ParseObject(object o, string name, Action<IObjectWalker, object, string, int> parse, IObjectWalker walker, string ifPrimitive, int depth)
+        static void ParseObject(object o, Action<IObjectWalker, object, int> parse, IObjectWalker walker, string fieldName, int depth, ItemType type)
         {
             if (o == null)
             {
-                walker.WalkLevel(string.Format("{0} = null", name));
+                walker.WalkLevel(fieldName, "null", ItemType.NameValue);
                 return;
             }
             var enu = o as IEnumerable;
             if (enu != null && !(enu is string) && !(o is IDictionary))
             {
-                walker.WalkLevel(name);
-                foreach (object o2 in enu)
+                walker.WalkLevel(fieldName, null, ItemType.Name);
+                foreach (object item in enu)
                 {
-                    Type et = o2.GetType();
+                    //Type it = item.GetType();
                     walker.WalkDown(null);
-                    ParseObject(o2, et.Name, parse, walker, string.Concat("[", o2.ToString(), "]"),depth);
+                    ParseObject(item, parse, walker, null, depth, ItemType.Collection);//typename or value
                     walker.WalkUp();
                 }
                 return;
@@ -74,13 +71,13 @@ namespace ObjectWalker
             var dict = o as IDictionary;
             if (dict != null)
             {
-                walker.WalkLevel(name);
+                walker.WalkLevel(fieldName, null, ItemType.Name);
                 foreach (var key in dict.Keys)
                 {
                     var dValue = dict[key];
-                    Type dt = dValue.GetType();
+                    //Type dt = dValue.GetType();
                     walker.WalkDown(null);
-                    ParseObject(dValue, dt.Name, parse, walker, string.Concat("{", key, " : ", dValue.ToString(), "}"),depth);
+                    ParseObject(dValue, parse, walker, key.ToString(), depth, ItemType.Dictionary); //key + typename_or_value
                     walker.WalkUp();
                 }
                 return;
@@ -88,12 +85,13 @@ namespace ObjectWalker
             Type t = o.GetType();
             if (!t.IsPrimitive && !t.IsValueType && t != typeof(string))
             {
-                walker.WalkLevel(name);
-                parse(walker, o, null,depth);
+                walker.WalkLevel(fieldName, t.Name, type);
+                parse(walker, o, depth);
             }
             else
             {
-                walker.WalkLevel(ifPrimitive);
+                string valTxt = t == typeof (string) ? string.Format("\"{0}\"", o) : o.ToString();
+                walker.WalkLevel(fieldName, valTxt, type);
             }
         }
 

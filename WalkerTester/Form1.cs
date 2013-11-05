@@ -21,10 +21,10 @@ namespace WalkerTester
             Configuration c = new Configuration();
             
             ObjectUtils.FillObject(c,2);
-            
-            var walker = new StringBuilderWalker();
-            ObjectUtils.WalkObject(c, walker);
-            richTextBox1.Text = walker.GetBuilder().ToString();
+
+            var sb = new StringBuilder();
+            ObjectUtils.WalkObject(c, new StringBuilderWalker(sb));
+            richTextBox1.Text = sb.ToString();
 
             ObjectUtils.WalkObject(c, new TreeViewWalker(treeView1));
             treeView1.ExpandAll();
@@ -36,12 +36,8 @@ namespace WalkerTester
         {
             XDocument xdoc = new XDocument();
             ObjectUtils.WalkObject(c, new XmlWalker(xdoc));
-            using (var writer=new StringWriter())
-            {
-                xdoc.Save(writer);
-                return writer.ToString();
-            }
-            
+            return xdoc.ToString();
+
         }
     }
 }

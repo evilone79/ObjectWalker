@@ -62,7 +62,7 @@ namespace WalkerTester
    
     public class Configuration
     {
-        //public LinkedList<string> LS { get; set; } 
+        public List<Entity> Lst { get; set; } 
         //public HashSet<Entity> HS { get; set; } 
         public Dictionary<int, Entity> DictEnt { get; set; }
         public Entity TheEntity { get; set; }
