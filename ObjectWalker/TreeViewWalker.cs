@@ -11,7 +11,7 @@ namespace ObjectWalker
         private readonly Stack<TreeNode> m_stack = new Stack<TreeNode>();
         private TreeNode m_curNode;
 
-        public TreeViewWalker(TreeView tv) : base(new ToTextFormatter())
+        public TreeViewWalker(TreeView tv) : base(new TextFormatter())
         {
             m_curNode = new TreeNode();
             tv.Nodes.Add(m_curNode);

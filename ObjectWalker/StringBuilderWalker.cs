@@ -11,7 +11,7 @@ namespace ObjectWalker
         private StringBuilder m_builder;
         private Leaf m_curLeaf;
 
-        public StringBuilderWalker(StringBuilder builder) : base(new ToTextFormatter())
+        public StringBuilderWalker(StringBuilder builder) : base(new TextFormatter())
         {
             m_curLeaf = new Leaf(string.Empty);
             m_builder = builder;

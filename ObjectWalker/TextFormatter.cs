@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ObjectWalker
 {
-    public class ToTextFormatter : IItemFormatter
+    public class TextFormatter : IItemFormatter
     {
         public string GetItemText(string name, string value, ItemType type)
         {

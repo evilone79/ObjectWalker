@@ -48,7 +48,6 @@ namespace ObjectWalker
                 case ItemType.NameValue:
                     m_curNode.Name = name;
                     m_curNode.Add(new XAttribute("value", value));
-                    //m_curNode.Value = value;
                     break;
                 default:
                     m_curNode.Name = name;

@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="StringBuilderWalker.cs" />
-    <Compile Include="ToTextAdapter.cs" />
+    <Compile Include="TextFormatter.cs" />
     <Compile Include="TreeViewWalker.cs" />
     <Compile Include="IObjectWalker.cs" />
     <Compile Include="ObjectUtils.cs" />
