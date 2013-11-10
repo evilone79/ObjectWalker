@@ -61,9 +61,8 @@ namespace ObjectWalker
                 walker.WalkLevel(fieldName, null, ItemType.Name);
                 foreach (object item in enu)
                 {
-                    //Type it = item.GetType();
                     walker.WalkDown(null);
-                    ParseObject(item, parse, walker, null, depth, ItemType.Collection);//typename or value
+                    ParseObject(item, parse, walker, null, depth, ItemType.Collection);
                     walker.WalkUp();
                 }
                 return;
@@ -75,9 +74,8 @@ namespace ObjectWalker
                 foreach (var key in dict.Keys)
                 {
                     var dValue = dict[key];
-                    //Type dt = dValue.GetType();
                     walker.WalkDown(null);
-                    ParseObject(dValue, parse, walker, key.ToString(), depth, ItemType.Dictionary); //key + typename_or_value
+                    ParseObject(dValue, parse, walker, key.ToString(), depth, ItemType.Dictionary); 
                     walker.WalkUp();
                 }
                 return;
@@ -90,7 +88,7 @@ namespace ObjectWalker
             }
             else
             {
-                string valTxt = t == typeof (string) ? string.Format("\"{0}\"", o) : o.ToString();
+                string valTxt = t == typeof (string) ? string.Format("\"{0}\"", ((string)o).Trim()) : o.ToString();
                 walker.WalkLevel(fieldName, valTxt, type);
             }
         }
@@ -152,10 +150,6 @@ namespace ObjectWalker
             if (t.IsEnum)
             {
                 return t.GetEnumValues().GetValue(0);
-            }
-            if (t.IsValueType)
-            {
-                return Activator.CreateInstance(t);
             }
             if (t.IsClass)
             {
