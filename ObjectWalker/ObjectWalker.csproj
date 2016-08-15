@@ -41,10 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IParseItem.cs" />
+    <Compile Include="ITypeAcceptor.cs" />
+    <Compile Include="ObjectWalker.cs" />
     <Compile Include="StringBuilderWalker.cs" />
     <Compile Include="TreeViewWalker.cs" />
     <Compile Include="IObjectWalker.cs" />
-    <Compile Include="ObjectUtils.cs" />
+    <Compile Include="ObjectGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlWalker.cs" />
   </ItemGroup>

@@ -20,13 +20,13 @@ namespace WalkerTester
         {
             Configuration c = new Configuration();
             
-            ObjectUtils.FillObject(c,2);
+            ObjectGenerator.FillObject(c,2);
             
             var walker = new StringBuilderWalker();
-            ObjectUtils.WalkObject(c, walker);
+            ObjectGenerator.WalkObject(c, walker);
             richTextBox1.Text = walker.GetBuilder().ToString();
 
-            ObjectUtils.WalkObject(c, new TreeViewWalker(treeView1));
+            ObjectGenerator.WalkObject(c, new TreeViewWalker(treeView1));
             treeView1.ExpandAll();
 
             richTextBox2.Text = SerializeToXml(c);
@@ -35,7 +35,7 @@ namespace WalkerTester
         string SerializeToXml(Configuration c)
         {
             XDocument xdoc = new XDocument();
-            ObjectUtils.WalkObject(c, new XmlWalker(xdoc));
+            ObjectGenerator.WalkObject(c, new XmlWalker(xdoc));
             using (var writer=new StringWriter())
             {
                 xdoc.Save(writer);

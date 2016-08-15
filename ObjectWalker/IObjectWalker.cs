@@ -3,9 +3,9 @@
     public interface IObjectWalker
     {
         void OnStart();
-        void WalkDown(string text);
-        void WalkLevel(string text);
-        void WalkUp();
+        void StepDown();
+        void WalkLevel(IParseItem item);
+        void StepUp();
         void OnFinish();
     }
 

@@ -20,20 +20,20 @@ namespace ObjectWalker
         {
         }
 
-        public void WalkDown(string text)
+        public void StepDown()
         {
             m_leafs.Push(m_curLeaf);
-            var newLeaf = new Leaf(text);
+            var newLeaf = new Leaf("");
             m_curLeaf.AddLeaf(newLeaf);
             m_curLeaf = newLeaf;
         }
 
-        public void WalkLevel(string text)
+        public void WalkLevel(IParseItem item)
         {
-            m_curLeaf.Text = text;
+            m_curLeaf.Text = item.FieldName + " = " + item.Value;
         }
 
-        public void WalkUp()
+        public void StepUp()
         {
             m_curLeaf = m_leafs.Pop();
         }

@@ -21,20 +21,20 @@ namespace ObjectWalker
         {
         }
 
-        public void WalkDown(string text)
+        public void StepDown()
         {
             m_stack.Push(m_curNode);
-            TreeNode n = new TreeNode(text);
+            TreeNode n = new TreeNode("");
             m_curNode.Nodes.Add(n);
             m_curNode = n;
         }
 
-        public void WalkLevel(string text)
+        public void WalkLevel(IParseItem item)
         {
-            m_curNode.Text = text;
+            m_curNode.Text = item.FieldName + " = " + item.Value;
         }
 
-        public void WalkUp()
+        public void StepUp()
         {
             m_curNode = m_stack.Pop();
         }
