@@ -78,9 +78,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ObjectWalker\ObjectWalker.csproj">
+    <ProjectReference Include="..\ObjectWalker\ObjectUtils.csproj">
       <Project>{342CFC45-B048-42B5-A785-1ABDAC382F12}</Project>
-      <Name>ObjectWalker</Name>
+      <Name>ObjectUtils</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

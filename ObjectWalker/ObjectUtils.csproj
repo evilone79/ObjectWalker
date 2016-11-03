@@ -8,8 +8,8 @@
     <ProjectGuid>{342CFC45-B048-42B5-A785-1ABDAC382F12}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ObjectWalker</RootNamespace>
-    <AssemblyName>ObjectWalker</AssemblyName>
+    <RootNamespace>ObjectUtils</RootNamespace>
+    <AssemblyName>ObjectUtils</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -41,10 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ObjectWalker.cs" />
     <Compile Include="StringBuilderWalker.cs" />
     <Compile Include="TreeViewWalker.cs" />
     <Compile Include="IObjectWalker.cs" />
-    <Compile Include="ObjectUtils.cs" />
+    <Compile Include="ObjectGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlWalker.cs" />
   </ItemGroup>

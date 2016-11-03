@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using ObjectWalker;
+using ObjectUtils;
 
 namespace WalkerTester
 {
@@ -20,22 +20,23 @@ namespace WalkerTester
         {
             Configuration c = new Configuration();
             
-            ObjectUtils.FillObject(c,2);
+            ObjectGenerator.FillObject(c,2);
             
-            var walker = new StringBuilderWalker();
-            ObjectUtils.WalkObject(c, walker);
-            richTextBox1.Text = walker.GetBuilder().ToString();
+            var sb = new StringBuilder();
+            var walker = new StringBuilderWalker(sb);
+            ObjectWalker.WalkObject(c, walker);
+            richTextBox1.Text = sb.ToString();
 
-            ObjectUtils.WalkObject(c, new TreeViewWalker(treeView1));
+            ObjectWalker.WalkObject(c, new TreeViewWalker(treeView1));
             treeView1.ExpandAll();
 
-            richTextBox2.Text = SerializeToXml(c);
+            //richTextBox2.Text = SerializeToXml(c);
         }
        
         string SerializeToXml(Configuration c)
         {
             XDocument xdoc = new XDocument();
-            ObjectUtils.WalkObject(c, new XmlWalker(xdoc));
+            ObjectWalker.WalkObject(c, new XmlWalker(xdoc));
             using (var writer=new StringWriter())
             {
                 xdoc.Save(writer);

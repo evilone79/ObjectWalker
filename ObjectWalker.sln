@@ -1,7 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectWalker", "ObjectWalker\ObjectWalker.csproj", "{342CFC45-B048-42B5-A785-1ABDAC382F12}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectUtils", "ObjectWalker\ObjectUtils.csproj", "{342CFC45-B048-42B5-A785-1ABDAC382F12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalkerTester", "WalkerTester\WalkerTester.csproj", "{166C71BD-10F5-46F1-8349-C04BC34E90EF}"
 EndProject
