@@ -1,11 +1,11 @@
-﻿namespace ObjectWalker
+﻿namespace ObjectUtils
 {
     public interface IObjectWalker
     {
-        void OnStart();
-        void StepDown();
-        void WalkLevel(IParseItem item);
-        void StepUp();
+        void OnStart(string rootTypeName);
+        void OnBeginContainer(IParseItem item);
+        void OnField(IParseItem item);
+        void OnEndContainer();
         void OnFinish();
     }
 

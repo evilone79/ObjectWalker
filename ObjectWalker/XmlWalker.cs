@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace ObjectWalker
+namespace ObjectUtils
 {
     //public class XmlWalker : IObjectWalker
     //{
@@ -24,7 +24,7 @@ namespace ObjectWalker
     //        throw new NotImplementedException();
     //    }
 
-    //    public void StepDown()
+    //    public void OnBeginContainer()
     //    {
     //        m_stack.Push(m_curNode);
     //        var newNode = new XElement(text);
@@ -37,7 +37,7 @@ namespace ObjectWalker
     //        m_curNode.Value = text;
     //    }
 
-    //    public void StepUp()
+    //    public void OnEndContainer()
     //    {
     //        m_curNode = m_stack.Pop();
     //    }

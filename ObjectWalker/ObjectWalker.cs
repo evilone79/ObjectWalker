@@ -1,26 +1,59 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-namespace ObjectWalker
+namespace ObjectUtils
 {
     public class ParseResult : IParseItem
     {
-        public ParseResult(string typeName, string fieldName, string value)
+        private ParseResult(string typeName, string fieldName, string value)
         {
             TypeName = typeName;
             FieldName = fieldName;
             Value = value;
+            Trace.WriteLine(ToString());
+        }
+
+        public static IParseItem CreateForField(string type, string name, string value)
+        {
+            return new ParseResult(type, name, value);
+        }
+
+        public static IParseItem CreateForContainer(string type, string name)
+        {
+            return new ParseResult(type, name, string.Empty);
         }
 
         public string TypeName { get; }
         public string FieldName { get; }
         public string Value { get; }
+
+        public override string ToString()
+        {
+            return $"{TypeName} {FieldName} {Value}";
+        }
     }
 
     public class ObjectWalker
     {
+        private static HashSet<Type> _genericDefinitions = new HashSet<Type>
+        {
+            typeof(Dictionary<,>),
+            typeof(List<>),
+            typeof(LinkedList<>),
+            typeof(HashSet<>),
+            typeof(Queue<>),
+            typeof(Stack<>)
+        };
+
+        class KeyValue
+        {
+            public object Key { get; set; }
+            public object Value { get; set; }
+        }
         public static void WalkObject(object obj, IObjectWalker objectWalker)
         {
             WalkObject(obj, objectWalker, Int32.MaxValue);
@@ -28,81 +61,67 @@ namespace ObjectWalker
 
         public static void WalkObject(object obj, IObjectWalker objectWalker, int depth)
         {
-            Action<IObjectWalker, object, string, int> parse = null;
-            objectWalker.OnStart();
-            objectWalker.WalkLevel(new ParseResult(obj.GetType().Name, "", ""));
-            parse = (walker, o, txt, dep) =>
+            Action<IObjectWalker, object, string, int> parseObject = null;
+            objectWalker.OnStart(obj.GetType().Name);
+            parseObject = (walker, o, txt, dep) =>
             {
-                if (dep > 0)
+                if (dep-- == 0) return;
+
+                if (o == null)
                 {
-                    dep--;
-                    var properties = o.GetType().GetProperties().Where(p => p.CanRead);
-                    foreach (PropertyInfo property in properties)
+                    walker.OnField(ParseResult.CreateForField("Unknown", txt, "null"));
+                    return;
+                }
+                var t = o.GetType();
+                if (t.IsValueType)
+                {
+                    walker.OnField(ParseResult.CreateForField(t.Name, txt, o.ToString()));
+                }
+                else
+                {
+                    if (t == typeof(string))
                     {
-                        walker.StepDown();
-                        object val = property.GetValue(o, null);
-                        string ifprimitive = null;
-                        if (property.PropertyType == typeof(string))
+                        walker.OnField(ParseResult.CreateForField(t.Name, txt, (string)o));
+                    }
+                    else
+                    {
+                       
+                        walker.OnBeginContainer(ParseResult.CreateForContainer(t.Name, txt));
+                        if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                         {
-                            ifprimitive = string.Format("{0} = \"{1}\"", property.Name, val == null ? "" : val.ToString().Trim());
+                            var dict = (IDictionary)o;
+                            foreach (DictionaryEntry entry in dict)
+                            {
+                                parseObject(walker, new KeyValue{Key = entry.Key, Value = entry.Value }, "", dep);
+                            }
+                        }
+                        else if (t.IsArray || t.IsGenericType && _genericDefinitions.Contains(t.GetGenericTypeDefinition()))
+                        {
+                            foreach (var item in (IEnumerable)o)
+                            {
+                                parseObject(walker, item, "", dep);
+                            }
                         }
                         else
                         {
-                            ifprimitive = string.Format("{0} = {1}", property.Name, val);
+                            var properties = o.GetType().GetProperties().Where(p => p.CanRead);
+                            foreach (PropertyInfo property in properties)
+                            {
+                                object val = property.GetValue(o, null);
+                                string name = property.Name;
+                                parseObject(objectWalker, val, name, dep);
+                            }
                         }
-                        ParseObject(val, property.Name, parse, walker, ifprimitive, dep);
-                        walker.StepUp();
+                        walker.OnEndContainer();
                     }
+                    
                 }
             };
-            parse(objectWalker, obj, null, depth);
+            
+            parseObject(objectWalker, obj, null, depth);
             objectWalker.OnFinish();
         }
 
-        static void ParseObject(object o, string name, Action<IObjectWalker, object, string, int> parse, IObjectWalker walker, string ifPrimitive, int depth)
-        {
-            if (o == null)
-            {
-                walker.WalkLevel(new ParseResult("", name, "null"));
-                return;
-            }
-            var enu = o as IEnumerable;
-            if (enu != null && !(enu is string) && !(o is IDictionary))
-            {
-                walker.WalkLevel(new ParseResult(o.GetType().Name, name, ""));
-                foreach (object o2 in enu)
-                {
-                    Type et = o2.GetType();
-                    walker.StepDown();
-                    ParseObject(o2, et.Name, parse, walker, string.Concat("[", o2.ToString(), "]"), depth);
-                    walker.StepUp();
-                }
-                return;
-            }
-            var dict = o as IDictionary;
-            if (dict != null)
-            {
-                walker.WalkLevel(name);
-                foreach (var key in dict.Keys)
-                {
-                    var dValue = dict[key];
-                    Type dt = dValue.GetType();
-                    walker.StepDown();
-                    ParseObject(dValue, dt.Name, parse, walker, string.Concat("{", key, " : ", dValue.ToString(), "}"), depth);
-                    walker.StepUp();
-                }
-                return;
-            }
-            Type t = o.GetType();
-            if (!t.IsPrimitive && !t.IsValueType && t != typeof(string))
-            {
-                walker.WalkLevel(name);
-                parse(walker, o, null, depth);
-            }
-            else
-            {
-                walker.WalkLevel(ifPrimitive);
-            }
-        }
+        
     }
 }

@@ -1,4 +1,4 @@
-namespace ObjectWalker
+namespace ObjectUtils
 {
     public interface IParseItem
     {

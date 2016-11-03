@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace WalkerTester
 {
@@ -10,13 +9,89 @@ namespace WalkerTester
         EnumValue1,
         EnumValue2
     }
-    
+
+    public class TheTester
+    {
+
+        private string m_str;
+        private DateTime m_dt;
+        private SomeeNum m_enu;
+
+        private List<string> _list = new List<string>
+        {
+            "aaa","bbb","ccc"
+        };
+
+        Dictionary<string, int> _dict = new Dictionary<string, int>
+        {
+            {"first", 12 }, {"second", 13 }
+        };
+
+        public Entity TheEntity { get; set; } = new Entity();
+
+        private int[] _ints = new[] { 1, 2, 4, 5 };
+
+        public TheTester(string str, DateTime dt, SomeeNum enu)
+        {
+            m_str = str;
+            m_dt = dt;
+            m_enu = enu;
+        }
+
+        public string Str
+        {
+            get { return m_str; }
+            set { m_str = value; }
+        }
+
+        public DateTime Dt
+        {
+            get { return m_dt; }
+            set { m_dt = value; }
+        }
+
+        public SomeeNum Enu
+        {
+            get { return m_enu; }
+            set { m_enu = value; }
+        }
+
+        public List<string> ListAha
+        {
+            get { return _list; }
+        }
+
+        public int[] Ints
+        {
+            get { return _ints; }
+        }
+
+        public Dictionary<string, int> Dict
+        {
+            get { return _dict; }
+            set { _dict = value; }
+        }
+    }
+
     public class NoCtor
     {
 
         private string m_str;
         private DateTime m_dt;
         private SomeeNum m_enu;
+
+        private List<string> _list = new List<string>
+        {
+            "aaa","bbb","ccc"
+        };
+
+        Dictionary<string, int> _dict=new Dictionary<string, int>
+        {
+            {"first", 12 }, {"second", 13 }
+        }; 
+       
+
+        private int[] _ints = {1, 2, 4, 5};
         
         public NoCtor(string str, DateTime dt, SomeeNum enu)
         {
@@ -41,6 +116,22 @@ namespace WalkerTester
         {
             get { return m_enu; }
             set { m_enu = value; }
+        }
+
+        public List<string> ListAha
+        {
+            get { return _list; }
+        }
+
+        public int[] Ints
+        {
+            get { return _ints; }
+        }
+
+        public Dictionary<string, int> Dict
+        {
+            get { return _dict; }
+            set { _dict = value; }
         }
     }
     
@@ -85,21 +176,21 @@ namespace WalkerTester
             set { _fileHash = value; }
         }
 
-        protected bool _isMsi = false;
+        protected bool _isMsi;
         public bool IsMsi
         {
             get { return _isMsi; }
             set { _isMsi = value; }
         }
 
-        protected bool _uacRequired = false;
+        protected bool _uacRequired;
         public bool UacRequired
         {
             get { return _uacRequired; }
             set { _uacRequired = value; }
         }
 
-        protected bool _silent = false;
+        protected bool _silent;
         public bool Silent
         {
             get { return _silent; }
@@ -127,14 +218,14 @@ namespace WalkerTester
             set { _onInstallFail = value; }
         }
 
-        protected bool _delayedBilling = false;
+        protected bool _delayedBilling;
         public bool DelayedBilling
         {
             get { return _delayedBilling; }
             set { _delayedBilling = value; }
         }
 
-        protected List<Entity> _defaultInstallerParams = null;
+        protected List<Entity> _defaultInstallerParams;
         public List<Entity> DefaultInstallerParams
         {
             get { return _defaultInstallerParams; }

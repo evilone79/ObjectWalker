@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ObjectWalker
+namespace ObjectUtils
 {
     public class StringBuilderWalker : IObjectWalker
     {
@@ -16,31 +16,41 @@ namespace ObjectWalker
             m_builder = builder;
         }
 
-        public void OnStart()
+        public void OnStart(string rootType)
         {
+            m_curLeaf.Text = rootType;
         }
 
-        public void StepDown()
+        public void OnBeginContainer(IParseItem item)
         {
             m_leafs.Push(m_curLeaf);
             var newLeaf = new Leaf("");
             m_curLeaf.AddLeaf(newLeaf);
             m_curLeaf = newLeaf;
+            m_curLeaf.Text = string.Format("{0} ({1})", item.FieldName, item.TypeName);
         }
 
-        public void WalkLevel(IParseItem item)
+        
+        public void OnField(IParseItem item)
         {
-            m_curLeaf.Text = item.FieldName + " = " + item.Value;
+            var leaf = new Leaf("");
+            m_curLeaf.AddLeaf(leaf);
+            leaf.Text = string.IsNullOrEmpty(item.FieldName)
+                ? string.Format("[{0}]", item.Value)
+                : string.Format("{0} = {1}", item.FieldName, item.Value);
         }
 
-        public void StepUp()
+
+        public void OnEndContainer()
         {
             m_curLeaf = m_leafs.Pop();
         }
 
         public void OnFinish()
         {
+            m_curLeaf = m_curLeaf.Leafs.First();
             m_curLeaf.DrawTree(m_builder, new List<string>(), true);
+            //m_builder.Remove(0, 2);
         }
 
         class Leaf
@@ -54,12 +64,15 @@ namespace ObjectWalker
                 Text = text;
                 Leafs = new List<Leaf>();
             }
-            List<Leaf> Leafs { get; set; }
+
+            public List<Leaf> Leafs { get; set; }
             public string Text { get; set; }
             public void AddLeaf(Leaf l)
             {
                 Leafs.Add(l);
             }
+
+           
             public void DrawTree(StringBuilder builder, List<string> prefix, bool isLast)
             {
                 builder.Append(string.Concat(prefix)).Append(LEAF_TOKEN).AppendLine(Text);
